@@ -1,6 +1,6 @@
 #!/usr/bin/env rake
 
-@cookbook = "rvm_passenger"
+@cookbook = "rbenv_passenger"
 
 desc "Runs foodcritc linter"
 task :foodcritic do
