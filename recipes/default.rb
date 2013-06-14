@@ -1,11 +1,13 @@
 #
-# Cookbook Name:: rvm_passenger
+# Cookbook Name:: rbenv_passenger
 # Based on passenger_enterprise
 # Recipe:: default
 #
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
+# Author:: Josh McArthur <joshua.mcarthur@gmail.com>
 #
 # Copyright:: 2010, 2011, Fletcher Nichol
+# Copyright:: 2013, Josh McArthur
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,46 +23,44 @@
 
 class Chef::Recipe
   # mix in recipe helpers
-  include Chef::RVMPassenger::RecipeHelpers
+  include Chef::RBEnvPassenger::RecipeHelpers
 end
 
 determine_gem_version_if_not_given
-determine_rvm_ruby_if_not_given
+determine_rbenv_ruby_if_not_given
 
-rvm_ruby          = node['rvm_passenger']['rvm_ruby']
-passenger_version = node['rvm_passenger']['version']
+rbenv_ruby          = node['rbenv_passenger']['rbenv_ruby']
+passenger_version = node['rbenv_passenger']['version']
 
-include_recipe "rvm::system"
+include_recipe "rbenv::system"
 
-Array(node['rvm_passenger']['common_pkgs']).each do |pkg|
+Array(node['rbenv_passenger']['common_pkgs']).each do |pkg|
   package pkg
 end
 
-rvm_environment rvm_ruby
-
-rvm_gem "passenger" do
-  ruby_string rvm_ruby
+rbenv_gem "passenger" do
+  rbenv_version rvm_ruby
   version     passenger_version
 end
 
-# calculate the root_path attribute if it isn't set. This is evaluated in the
-# execute phase because the RVM environment is queried and the Ruby must be
-# installed.
-ruby_block "Calculate node['rvm_passenger']['root_path']" do
-  block do
-    Chef::RVMPassenger::CalculateAttribute.new(node).for_root_path
-  end
+# # calculate the root_path attribute if it isn't set. This is evaluated in the
+# # execute phase because the RVM environment is queried and the Ruby must be
+# # installed.
+# ruby_block "Calculate node['rvm_passenger']['root_path']" do
+#   block do
+#     Chef::RVMPassenger::CalculateAttribute.new(node).for_root_path
+#   end
 
-  not_if  { node['rvm_passenger']['root_path'] }
-end
+#   not_if  { node['rvm_passenger']['root_path'] }
+# end
 
 # calculate the ruby_wrapper attribute if it isn't set. This is evaluated in
 # the execute phase because the RVM environment is queried and the Ruby must be
 # installed.
-ruby_block "Calculate node['rvm_passenger']['ruby_wrapper']" do
-  block do
-    Chef::RVMPassenger::CalculateAttribute.new(node).for_ruby_wrapper
-  end
+# ruby_block "Calculate node['rvm_passenger']['ruby_wrapper']" do
+#   block do
+#     Chef::RVMPassenger::CalculateAttribute.new(node).for_ruby_wrapper
+#   end
 
-  not_if  { node['rvm_passenger']['ruby_wrapper'] }
-end
+#   not_if  { node['rvm_passenger']['ruby_wrapper'] }
+# end
