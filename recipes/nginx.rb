@@ -1,16 +1,18 @@
 #
-# Cookbook Name:: rvm_passenger
+# Cookbook Name:: rbenv_passenger
 # Based on passenger_enterprise
 # Recipe:: nginx
 #
 # Author:: Joshua Timberman (<joshua@opscode.com>)
 # Author:: Joshua Sierles (<joshua@37signals.com>)
 # Author:: Michael Hale (<mikehale@gmail.com>)
+# Author:: Josh McArthur (<joshua.mcarthur@gmail.com>)
 #
 # Copyright:: 2009, Opscode, Inc
 # Copyright:: 2009, 37signals
 # Coprighty:: 2009, Michael Hale
 # Copyright:: 2010, 2011, Fletcher Nichol
+# Copyright:: 2013, Josh McArthur
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +27,7 @@
 # limitations under the License.
 
 include_recipe "nginx::source"
-include_recipe "rvm_passenger"
+include_recipe "rbenv_passenger"
 
 configure_flags = node['nginx']['configure_flags'].empty? ? 'none' : node['nginx']['configure_flags'].join(" ")
 nginx_install   = node['nginx']['source']['prefix']
@@ -45,8 +47,8 @@ bash "extract_nginx_source" do
   not_if  %{test -d #{archive_cache}/nginx-#{nginx_version}}
 end
 
-rvm_shell "build passenger_nginx_module" do
-  ruby_string   node['rvm_passenger']['rvm_ruby']
+rbenv_script "build passenger_nginx_module" do
+  rbenv_version   node['rbenv_passenger']['rbenv_ruby']
   code          <<-INSTALL
     passenger-install-nginx-module \
       --auto --prefix=#{nginx_install} \
