@@ -1,10 +1,11 @@
 #
-# Cookbook Name:: rvm_passenger
-# Library:: Chef::RVMPassenger::RecipeHelpers
+# Cookbook Name:: rbenv_passenger
+# Library:: Chef::RBEnvPassenger::RecipeHelpers
 #
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
-#
-# Copyright 2011, Fletcher Nichol
+# Author:: Josh McArthur (joshua.mcarthur@gmail.com)
+# Copyright:: 2010, 2011, Fletcher Nichol
+# Copyright:: 2013, Josh McArthur
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@
 #
 
 class Chef
-  module RVMPassenger
+  module RBEnvPassenger
 
     # Exceptions
     class GemVersionNotFound < RuntimeError; end
@@ -30,7 +31,7 @@ class Chef
       # Sets the version attribute to the most current RubyGems release,
       # unless set
       def determine_gem_version_if_not_given
-        if node[:rvm_passenger][:version].nil?
+        if node[:rbenv_passenger][:version].nil?
           require 'rubygems'
           require 'rubygems/dependency_installer'
 
@@ -40,26 +41,27 @@ class Chef
           if spec.nil?
             raise Chef::RVMPassenger::GemVersionNotFound,
               "Cannot find any suitable gem version of ruby Passenger. " +
-              "Please specify node['rvm_passenger']['version'] or check if " +
+              "Please specify node['rbenv_passenger']['version'] or check if " +
               "there are any connection problem with the gem sources."
           end
 
-          node.set[:rvm_passenger][:version] = spec[0].version.to_s
-          Chef::Log.debug(%{Setting node['rvm_passenger']['version'] = } +
-            %{"#{node['rvm_passenger']['version']}"})
+          node.set[:rbenv_passenger][:version] = spec[0].version.to_s
+          Chef::Log.debug(%{Setting node['rbenv_passenger']['version'] = } +
+            %{"#{node['rbenv_passenger']['version']}"})
         end
       end
 
       ##
-      # Sets the rvm_ruby attribute to rvm/default ruby, unless set
-      def determine_rvm_ruby_if_not_given
-        if node['rvm_passenger']['rvm_ruby'].nil?
-          rvm_ruby = node['rvm']['default_ruby']
-          rvm_ruby += "@passenger" unless rvm_ruby == "system"
+      # Sets the rbenv_ruby attribute to rbenv/global ruby, unless set
+      def determine_rbenv_ruby_if_not_given
+        if node['rbenv_passenger']['rbenv_ruby'].nil?
+          # FIXME I don't believe there's a way to access
+          # the global ruby from chef-rbenv
+          rbenv_ruby = node['rbenv']['rubies'].last
 
-          node.set['rvm_passenger']['rvm_ruby'] = rvm_ruby
-          Chef::Log.debug(%{Setting node['rvm_passenger']['rvm_ruby'] = } +
-            %{"#{node['rvm_passenger']['rvm_ruby']}"})
+          node.set['rbenv_passenger']['rbenv_ruby'] = rvm_ruby
+          Chef::Log.debug(%{Setting node['rbenv_passenger']['rbenv_ruby'] = } +
+            %{"#{node['rbenv_passenger']['rbenv_ruby']}"})
         end
       end
     end
