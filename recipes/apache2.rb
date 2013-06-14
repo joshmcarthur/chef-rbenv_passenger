@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: rvm_passenger
+# Cookbook Name:: rbenv_passenger
 # Based on passenger_enterprise
 # Recipe:: apache2
 #
@@ -7,11 +7,13 @@
 # Author:: Joshua Sierles (<joshua@37signals.com>)
 # Author:: Michael Hale (<mikehale@gmail.com>)
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
+# Author:: Josh McArthur (joshua.mcarthur@gmail.com)
 #
 # Copyright:: 2009, Opscode, Inc
 # Copyright:: 2009, 37signals
 # Coprighty:: 2009, Michael Hale
 # Copyright:: 2010, 2011, Fletcher Nichol
+# Copyright:: 2013, Josh McArthur
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,35 +27,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe "rvm_passenger"
+include_recipe "rbenv_passenger"
 include_recipe "apache2"
 
-rvm_ruby    = node['rvm_passenger']['rvm_ruby']
+rbenv_ruby    = node['rbenv_passenger']['rbenv_ruby']
 apache_dir  = node['apache']['dir']
 
 # set the module_path attribute if it isn't set
-ruby_block "Calculate node['rvm_passenger']['module_path']" do
+ruby_block "Calculate node['rbenv_passenger']['module_path']" do
   block do
-    root_path = node['rvm_passenger']['root_path']
+    root_path = node['rbenv_passenger']['root_path']
 
     node.set['rvm_passenger']['module_path'] =
       "#{root_path}/ext/apache2/mod_passenger.so"
-    Chef::Log.debug(%{Setting node['rvm_passenger']['module_path'] = } +
-      %{"#{node['rvm_passenger']['module_path']}"})
+    Chef::Log.debug(%{Setting node['rbenv_passenger']['module_path'] = } +
+      %{"#{node['rbenv_passenger']['module_path']}"})
   end
 
-  not_if  { node['rvm_passenger']['module_path'] }
+  not_if  { node['rbenv_passenger']['module_path'] }
 end
 
-Array(node['rvm_passenger']['apache2_pkgs']).each do |pkg|
+Array(node['rbenv_passenger']['apache2_pkgs']).each do |pkg|
   package pkg
 end
 
-rvm_shell "passenger_apache2_module" do
-  ruby_string   rvm_ruby
+rbenv_script "passenger_apache2_module" do
+  rbenv_version   rbenv_ruby
   code          %{passenger-install-apache2-module -a}
 
-  not_if        { ::File.exists? node['rvm_passenger']['module_path'] }
+  not_if        { ::File.exists? node['rbenv_passenger']['module_path'] }
 end
 
 template "#{apache_dir}/mods-available/passenger.load" do
@@ -71,5 +73,5 @@ template "#{apache_dir}/mods-available/passenger.conf" do
 end
 
 apache_module "passenger" do
-  module_path node['rvm_passenger']['module_path']
+  module_path node['rbenv_passenger']['module_path']
 end
